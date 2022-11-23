@@ -1,4 +1,7 @@
-﻿namespace CwkBooking.Api;
+﻿using CwkBooking.Api.Services;
+using CwkBooking.Api.Services.Abstractions;
+
+namespace CwkBooking.Api;
 
 public class Program
 {
@@ -13,6 +16,11 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddSingleton<DataSource>();
+        builder.Services.AddSingleton<MyFirstService>();
+
+        builder.Services.AddSingleton<ISingletonOperation, SingletonOperation>();
+        builder.Services.AddTransient<ITransientOperation, TransientOperation>();
+        builder.Services.AddScoped<IScopedOperation, ScopedOperation>();
 
         var app = builder.Build();
 
