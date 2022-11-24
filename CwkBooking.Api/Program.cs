@@ -1,5 +1,4 @@
-﻿using CwkBooking.Api.Services;
-using CwkBooking.Api.Services.Abstractions;
+﻿using CwkBooking.Api.Middleware;
 
 namespace CwkBooking.Api;
 
@@ -16,11 +15,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddSingleton<DataSource>();
-        builder.Services.AddSingleton<MyFirstService>();
-
-        builder.Services.AddSingleton<ISingletonOperation, SingletonOperation>();
-        builder.Services.AddTransient<ITransientOperation, TransientOperation>();
-        builder.Services.AddScoped<IScopedOperation, ScopedOperation>();
+        builder.Services.AddHttpContextAccessor();
 
         var app = builder.Build();
 
@@ -35,6 +30,7 @@ public class Program
 
         app.UseAuthorization();
 
+        app.UseDateTimeHeader();
 
         app.MapControllers();
 
