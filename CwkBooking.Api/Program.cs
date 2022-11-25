@@ -1,4 +1,7 @@
 ﻿using CwkBooking.Api.Middleware;
+using CwkBooking.Dal;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace CwkBooking.Api;
 
@@ -15,7 +18,16 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddSingleton<DataSource>();
-        builder.Services.AddHttpContextAccessor();
+
+        var connectionStringBuilder = new SqlConnectionStringBuilder(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+        );
+        connectionStringBuilder.Password = builder.Configuration["DbPassword"];
+        connectionStringBuilder.UserID = builder.Configuration["DbId"];
+
+        var connection = connectionStringBuilder.ConnectionString;
+
+        builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connection));
 
         var app = builder.Build();
 

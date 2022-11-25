@@ -16,7 +16,7 @@ namespace CwkBooking.Domain.Models
 
         public string Country { get; set; }
 
-        public List<Room> Rooms { get; set; }
+        public List<Room> Rooms { get; set; } = new List<Room>();
 
         public string Description { get; set; }
     }
