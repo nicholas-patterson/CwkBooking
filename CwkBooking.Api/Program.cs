@@ -28,6 +28,7 @@ public class Program
         var connection = connectionStringBuilder.ConnectionString;
 
         builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connection));
+        builder.Services.AddAutoMapper(typeof(Program));
 
         var app = builder.Build();
 

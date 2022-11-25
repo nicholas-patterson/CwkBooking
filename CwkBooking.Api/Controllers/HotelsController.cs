@@ -1,4 +1,6 @@
-﻿using CwkBooking.Dal;
+﻿using AutoMapper;
+using CwkBooking.Api.Dto;
+using CwkBooking.Dal;
 using CwkBooking.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,21 +15,25 @@ namespace CwkBooking.Api.Controllers
         private readonly ILogger<HotelsController> _logger;
         private readonly DataContext _ctx;
 
-        public HotelsController(ILogger<HotelsController> logger, DataContext ctx)
+        private readonly IMapper _mapper;
+
+        public HotelsController(ILogger<HotelsController> logger, DataContext ctx, IMapper mapper)
         {
             _logger = logger;
             _ctx = ctx;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Hotel>>> GetAllHotels()
+        public async Task<ActionResult<IEnumerable<HotelGetDto>>> GetAllHotels()
         {
             var hotels = await _ctx.Hotels.ToListAsync();
-            return hotels;
+            var hotelsGet = _mapper.Map<List<HotelGetDto>>(hotels);
+            return hotelsGet;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Hotel>> GetHotelById(int id)
+        public async Task<ActionResult<HotelGetDto>> GetHotelById(int id)
         {
             var hotel = await _ctx.Hotels.FirstOrDefaultAsync((hotel) => hotel.HotelId == id);
 
@@ -36,32 +42,30 @@ namespace CwkBooking.Api.Controllers
                 return NotFound();
             }
 
-            return hotel;
+            var hotelGet = _mapper.Map<HotelGetDto>(hotel);
+
+            return hotelGet;
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateHotel(Hotel hotel)
+        public async Task<ActionResult<HotelGetDto>> CreateHotel(HotelCreateDto hotel)
         {
-            _ctx.Hotels.Add(hotel);
+            var domainHotel = _mapper.Map<Hotel>(hotel);
+
+            _ctx.Hotels.Add(domainHotel);
             await _ctx.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetHotelById), new { id = hotel.HotelId }, hotel);
+
+            var hotelGet = _mapper.Map<HotelGetDto>(domainHotel);
+
+            return CreatedAtAction(nameof(GetHotelById), new { id = domainHotel.HotelId }, hotelGet);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateHotel(int id, Hotel hotel)
+        public async Task<ActionResult> UpdateHotel(HotelCreateDto updatedHotel, int id)
         {
-            var hotelToUpdate = await _ctx.Hotels.FirstOrDefaultAsync((hotel) => hotel.HotelId == id);
-
-            if (hotelToUpdate is null)
-            {
-                return NotFound();
-            }
-
-            hotelToUpdate.Stars = hotel.Stars;
-            hotelToUpdate.Description = hotel.Description;
-            hotelToUpdate.Name = hotel.Name;
-
-            _ctx.Hotels.Update(hotel);
+            var toUpdate = _mapper.Map<Hotel>(updatedHotel);
+            toUpdate.HotelId = id;
+            _ctx.Hotels.Update(toUpdate);
             await _ctx.SaveChangesAsync();
             return NoContent();
         }
