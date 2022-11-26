@@ -1,20 +1,15 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace CwkBooking.Domain.Models
+namespace CwkBooking.Api.Dto
 {
-    public class Room
+    public class RoomGetDto
     {
         public int RoomId { get; set; }
-
         public int RoomNumber { get; set; }
-
         public double Surface { get; set; }
-
         public bool NeedsRepair { get; set; }
-
-        public int HotelId { get; set; }
-
-        public Hotel Hotel { get; set; }
     }
 }
-

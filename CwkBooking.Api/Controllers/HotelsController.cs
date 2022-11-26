@@ -84,6 +84,76 @@ namespace CwkBooking.Api.Controllers
             await _ctx.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpGet("{hotelId}/rooms")]
+        public async Task<ActionResult<IEnumerable<RoomGetDto>>> GetAllHotelRooms(int hotelId)
+        {
+            var rooms = await _ctx.Rooms.Where(room => room.HotelId == hotelId).ToListAsync();
+            var mappedRooms = _mapper.Map<List<RoomGetDto>>(rooms);
+            return mappedRooms;
+        }
+
+        [HttpGet("{hotelId}/rooms/{roomId}")]
+        public async Task<ActionResult<RoomGetDto>> GetHotelRoomById(int hotelId, int roomId)
+        {
+            var room = await _ctx.Rooms.FirstOrDefaultAsync(room => room.HotelId == hotelId && room.RoomId == roomId);
+
+            if (room is null)
+            {
+                return NotFound();
+            }
+
+            var mappedRoom = _mapper.Map<RoomGetDto>(room);
+            return mappedRoom;
+
+        }
+
+        [HttpPost("{hotelId}/rooms")]
+        public async Task<ActionResult<RoomGetDto>> AddHotelRoom(RoomPostPutDto newRoom, int hotelId)
+        {
+            var hotel = await _ctx.Hotels.Include(h => h.Rooms).FirstOrDefaultAsync(hotel => hotel.HotelId == hotelId);
+
+            if (hotel is null)
+            {
+                return NotFound();
+            }
+            var dtoToRoom = _mapper.Map<Room>(newRoom);
+            hotel.Rooms.Add(dtoToRoom);
+
+            var roomToRoomGet = _mapper.Map<RoomGetDto>(dtoToRoom);
+            _logger.LogInformation($"&&&: {roomToRoomGet.RoomId}");
+            await _ctx.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetHotelRoomById), new { hotelId = hotel.HotelId, roomId = roomToRoomGet.RoomId }, roomToRoomGet);
+        }
+
+        [HttpPut("{hotelId}/rooms/{roomId}")]
+        public async Task<ActionResult> UpdateHotelRoom(RoomPostPutDto updatedRoom, int hotelId, int roomId)
+        {
+            var toUpdate = _mapper.Map<Room>(updatedRoom);
+            toUpdate.RoomId = roomId;
+            toUpdate.HotelId = hotelId;
+
+            _ctx.Rooms.Update(toUpdate);
+            await _ctx.SaveChangesAsync();
+            return NoContent();
+        }
+
+
+        [HttpDelete("{hotelId}/rooms/{roomId}")]
+        public async Task<ActionResult> RemoveRoomFromHotel(int hotelId, int roomId)
+        {
+            var room = await _ctx.Rooms.FirstOrDefaultAsync(room => room.RoomId == roomId && room.HotelId == hotelId);
+
+            if (room is null)
+            {
+                return NotFound();
+            }
+
+
+            _ctx.Rooms.Remove(room);
+            await _ctx.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
 
