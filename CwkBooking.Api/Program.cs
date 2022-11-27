@@ -1,5 +1,7 @@
 ﻿using CwkBooking.Api.Middleware;
 using CwkBooking.Dal;
+using CwkBooking.Dal.Repositories;
+using CwkBooking.Domain.Abstractions.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +31,7 @@ public class Program
 
         builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connection));
         builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddScoped<IHotelsRepository, HotelRepository>();
 
         var app = builder.Build();
 

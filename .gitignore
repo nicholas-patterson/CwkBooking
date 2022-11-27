@@ -403,8 +403,3 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
-
-*/**/bin/Debug
-*/**/bin/Release
-*/**/obj/Debug
-*/**/obj/Release
