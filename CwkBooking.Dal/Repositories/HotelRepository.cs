@@ -66,7 +66,7 @@ namespace CwkBooking.Dal.Repositories
 
         public async Task<Hotel> GetHotelByIdAsync(int id)
         {
-            var hotel = await _ctx.Hotels.FirstOrDefaultAsync((hotel) => hotel.HotelId == id);
+            var hotel = await _ctx.Hotels.Include(hotel => hotel.Rooms).FirstOrDefaultAsync((hotel) => hotel.HotelId == id);
 
             if (hotel is null)
             {
